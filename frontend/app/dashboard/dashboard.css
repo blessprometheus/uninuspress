@@ -1,0 +1,208 @@
+.dashboard {
+  padding: var(--space-7) var(--space-5) var(--space-9);
+  max-width: 860px;
+}
+
+.dashboard-head {
+  margin-bottom: var(--space-6);
+}
+
+.dashboard-title {
+  font-size: var(--text-2xl);
+  font-weight: var(--fw-black);
+  letter-spacing: -0.02em;
+  color: var(--color-primary);
+  margin-bottom: var(--space-2);
+}
+
+.dashboard-welcome {
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+.dashboard-section {
+  font-size: var(--text-lg);
+  font-weight: var(--fw-bold);
+  margin: var(--space-6) 0 var(--space-3);
+}
+
+.muted {
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+.empty-state {
+  padding: var(--space-5);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+/* ---------- Form pengajuan ---------- */
+.ms-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: var(--space-5);
+  margin-bottom: var(--space-3);
+}
+
+.ms-form label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.ms-form input,
+.ms-form textarea {
+  font: inherit;
+  padding: 11px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-white);
+  font-weight: 400;
+}
+
+.ms-form input:focus,
+.ms-form textarea:focus {
+  outline: 2px solid var(--color-primary-light);
+  border-color: var(--color-primary);
+}
+
+.ms-form button {
+  align-self: flex-start;
+}
+
+.ms-form button:disabled {
+  opacity: 0.6;
+}
+
+/* ---------- List pengajuan ---------- */
+.ms-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.ms-card {
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: var(--space-5);
+  background: var(--color-white);
+}
+
+.ms-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.ms-header h3 {
+  font-size: var(--text-base);
+  font-weight: var(--fw-semibold);
+}
+
+.ms-desc {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  line-height: 1.6;
+  margin-bottom: var(--space-3);
+}
+
+.status-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.status-draft {
+  background: #f3f4f6;
+  color: #374151;
+}
+.status-submitted {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+.status-review {
+  background: #fef3c7;
+  color: #b45309;
+}
+.status-accepted,
+.status-published {
+  background: #ecfdf5;
+  color: #047857;
+}
+.status-rejected {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+.status-in_production {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.ms-files {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-3);
+}
+
+.ms-label {
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.file-chip {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.ms-upload {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.upload-btn {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary);
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+
+.upload-btn:hover {
+  background: var(--color-primary-light);
+}
+
+.upload-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 560px) {
+  .ms-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
