@@ -62,6 +62,13 @@ export default function LoginForm() {
       </button>
 
       <p className="auth-alt">
+        Lupa password?{" "}
+        <Link href="/lupa-password" className="auth-link">
+          Reset di sini
+        </Link>
+      </p>
+
+      <p className="auth-alt">
         Belum punya akun?{" "}
         <Link href="/daftar" className="auth-link">
           Daftar sekarang

@@ -36,4 +36,34 @@ export class MailService {
       },
     });
   }
+
+  async sendVerificationEmail(to: string, name: string, token: string) {
+    await this.mailer.sendMail({
+      to,
+      subject: 'Verifikasi Email — Uninus Press',
+      template: 'verify-email',
+      context: {
+        name,
+        verificationUrl: this.frontendUrl(`/verifikasi-email?token=${token}`),
+      },
+    });
+  }
+
+  async sendPasswordResetEmail(to: string, name: string, token: string) {
+    await this.mailer.sendMail({
+      to,
+      subject: 'Reset Password — Uninus Press',
+      template: 'reset-password',
+      context: {
+        name,
+        resetUrl: this.frontendUrl(`/reset-password?token=${token}`),
+      },
+    });
+  }
+
+  private frontendUrl(path: string) {
+    const base =
+      this.config.get<string>('FRONTEND_URL') ?? 'http://localhost:3000';
+    return `${base.replace(/\/$/, '')}${path}`;
+  }
 }

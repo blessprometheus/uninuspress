@@ -423,6 +423,11 @@
   color: var(--color-muted);
 }
 
+.auth-hint {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
 .auth-link {
   color: var(--color-primary);
   font-weight: 600;

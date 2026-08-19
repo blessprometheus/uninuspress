@@ -10,16 +10,57 @@ const prisma = new PrismaClient({
 async function main() {
   const adminEmail = process.env.SEED_ADMIN_EMAIL ?? 'admin@uninus.ac.id';
   const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? 'admin12345';
+  const editorEmail = process.env.SEED_EDITOR_EMAIL ?? 'editor@uninus.ac.id';
+  const editorPassword = process.env.SEED_EDITOR_PASSWORD ?? 'editor12345';
 
   const existing = await prisma.user.findUnique({ where: { email: adminEmail } });
   if (!existing) {
     const passwordHash = await bcrypt.hash(adminPassword, 10);
     await prisma.user.create({
-      data: { email: adminEmail, name: 'Administrator', passwordHash, role: Role.ADMIN },
+      data: {
+        email: adminEmail,
+        name: 'Administrator',
+        passwordHash,
+        role: Role.ADMIN,
+        emailVerifiedAt: new Date(),
+      },
     });
     console.log(`Admin dibuat: ${adminEmail}`);
   } else {
-    console.log(`Admin sudah ada: ${adminEmail}`);
+    if (!existing.emailVerifiedAt) {
+      await prisma.user.update({
+        where: { email: adminEmail },
+        data: { emailVerifiedAt: new Date() },
+      });
+      console.log(`Admin diaktifkan: ${adminEmail}`);
+    } else {
+      console.log(`Admin sudah ada: ${adminEmail}`);
+    }
+  }
+
+  const editor = await prisma.user.findUnique({ where: { email: editorEmail } });
+  if (!editor) {
+    const passwordHash = await bcrypt.hash(editorPassword, 10);
+    await prisma.user.create({
+      data: {
+        email: editorEmail,
+        name: 'Editor',
+        passwordHash,
+        role: Role.EDITOR,
+        emailVerifiedAt: new Date(),
+      },
+    });
+    console.log(`Editor dibuat: ${editorEmail}`);
+  } else {
+    if (!editor.emailVerifiedAt) {
+      await prisma.user.update({
+        where: { email: editorEmail },
+        data: { emailVerifiedAt: new Date() },
+      });
+      console.log(`Editor diaktifkan: ${editorEmail}`);
+    } else {
+      console.log(`Editor sudah ada: ${editorEmail}`);
+    }
   }
 
   const services = [
