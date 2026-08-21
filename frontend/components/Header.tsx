@@ -1,124 +1,155 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { useAuth } from "@/components/AuthProvider";
-import "./header.css";
+import { useAuth } from "@/context/AuthContext";
 
-const NAV = [
+const navItems = [
   { href: "/", label: "Beranda" },
-  { href: "/tentang", label: "Tentang Kami" },
+  { href: "/tentang", label: "Tentang" },
   { href: "/layanan", label: "Layanan" },
-  { href: "/paket-penerbitan", label: "Harga Paket" },
   { href: "/toko-buku", label: "Toko Buku" },
   { href: "/kontak", label: "Kontak" },
 ];
 
 export default function Header() {
-  const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   return (
-    <>
-      <div className="topbar">
-        <div className="container topbar-inner">
-          <div className="topbar-contact">
-            <a href="https://wa.me/628110000000" className="topbar-link">
-              <span aria-hidden>📞</span> 0811-xxxx-xxxx
-            </a>
-            <a href="mailto:press@uninus.ac.id" className="topbar-link">
-              <span aria-hidden>✉️</span> press@uninus.ac.id
-            </a>
-          </div>
-          <div className="topbar-tagline">Penerbit Universitas Islam Nusantara</div>
-        </div>
-      </div>
-      <header className="header">
-        <div className="container header-inner">
-          <Link href="/" className="brand" onClick={() => setOpen(false)}>
-            <span className="brand-badge">UN</span>
-            <span className="brand-text">
-              <strong>Uninus Press</strong>
-              <small>Penerbit Universitas</small>
-            </span>
-          </Link>
+    <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/95 shadow-sm backdrop-blur">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <Link href="/" className="flex items-center gap-3">
+          <Image
+            src="/logo-uninus.png"
+            alt="Logo UNINUS"
+            width={48}
+            height={48}
+            className="h-11 w-auto"
+            priority
+          />
+          <span className="text-lg font-extrabold tracking-tight text-uninus-dark">
+            UNINUS<span className="text-uninus-yellow"> Press</span>
+          </span>
+        </Link>
 
-        <button
-          type="button"
-          className={`hamburger ${open ? "is-open" : ""}`}
-          aria-label="Menu"
-          onClick={() => setOpen((v) => !v)}
-        >
-          <span />
-          <span />
-          <span />
-        </button>
-
-        <nav className={`nav ${open ? "is-open" : ""}`}>
-          {NAV.map((item) => (
+        <nav className="hidden items-center gap-10 lg:flex">
+          {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className={`nav-link ${pathname === item.href ? "active" : ""}`}
-              onClick={() => setOpen(false)}
+              className="text-sm font-semibold text-gray-700 transition-colors hover:text-uninus"
             >
               {item.label}
             </Link>
           ))}
+        </nav>
 
+        <div className="hidden items-center gap-4 lg:flex">
           {user ? (
-            <div className="nav-user">
-              {user.role === "AUTHOR" ? (
-                <Link
-                  href="/dashboard"
-                  className="nav-link"
-                  onClick={() => setOpen(false)}
-                >
-                  Dashboard
-                </Link>
-              ) : (
-                <Link
-                  href="/admin"
-                  className="nav-link"
-                  onClick={() => setOpen(false)}
-                >
-                  Panel Admin
-                </Link>
-              )}
-              <button
-                type="button"
-                className="btn btn-outline btn-sm"
-                onClick={() => {
-                  logout();
-                  setOpen(false);
-                }}
+            <>
+              <span className="text-sm font-semibold text-gray-600">
+                {user.name}
+              </span>
+              <Link
+                href="/dashboard"
+                className="rounded-full bg-uninus px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-uninus-dark"
               >
-                Keluar
-              </button>
-            </div>
+                Dashboard
+              </Link>
+            </>
           ) : (
             <>
               <Link
                 href="/masuk"
-                className="btn btn-outline btn-sm"
-                onClick={() => setOpen(false)}
+                className="text-sm font-semibold text-gray-700 transition-colors hover:text-uninus"
               >
                 Masuk
               </Link>
               <Link
                 href="/daftar"
-                className="btn btn-primary btn-sm"
-                onClick={() => setOpen(false)}
+                className="rounded-full bg-uninus px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-uninus-dark"
               >
-                Daftar
+                Ajukan Naskah
               </Link>
             </>
           )}
-        </nav>
+        </div>
+
+        <button
+          type="button"
+          aria-label="Buka menu"
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
+          className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-uninus lg:hidden"
+        >
+          <svg
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            {open ? (
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            ) : (
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            )}
+          </svg>
+        </button>
       </div>
+
+      {open && (
+        <nav className="border-t border-gray-100 bg-white px-4 pb-4 pt-2 lg:hidden">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setOpen(false)}
+              className="block rounded-lg px-3 py-3 text-sm font-semibold text-gray-700 hover:bg-uninus-soft hover:text-uninus"
+            >
+              {item.label}
+            </Link>
+          ))}
+          <div className="mt-3 flex flex-col gap-2 border-t border-gray-100 pt-3">
+            {user ? (
+              <Link
+                href="/dashboard"
+                onClick={() => setOpen(false)}
+                className="rounded-full bg-uninus px-5 py-2.5 text-center text-sm font-semibold text-white"
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/masuk"
+                  onClick={() => setOpen(false)}
+                  className="rounded-full border border-uninus px-5 py-2.5 text-center text-sm font-semibold text-uninus"
+                >
+                  Masuk
+                </Link>
+                <Link
+                  href="/daftar"
+                  onClick={() => setOpen(false)}
+                  className="rounded-full bg-uninus px-5 py-2.5 text-center text-sm font-semibold text-white"
+                >
+                  Ajukan Naskah
+                </Link>
+              </>
+            )}
+          </div>
+        </nav>
+      )}
     </header>
-    </>
   );
 }

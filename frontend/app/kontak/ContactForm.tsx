@@ -1,100 +1,88 @@
 "use client";
 
 import { useState } from "react";
-import { fetchApi } from "@/lib/api";
 
 export default function ContactForm() {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    subject: "",
-    message: "",
-  });
-  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">(
-    "idle",
-  );
-  const [error, setError] = useState("");
+  const [sent, setSent] = useState(false);
+  const [form, setForm] = useState({ name: "", email: "", message: "" });
 
-  function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setSent(true);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setStatus("sending");
-    setError("");
-    try {
-      await fetchApi("/contact", {
-        method: "POST",
-        body: JSON.stringify(form),
-      });
-      setStatus("success");
-      setForm({ name: "", email: "", subject: "", message: "" });
-    } catch (err) {
-      setStatus("error");
-      setError(err instanceof Error ? err.message : "Terjadi kesalahan");
-    }
+  if (sent) {
+    return (
+      <div className="mt-6 rounded-2xl bg-uninus-soft p-6 text-center">
+        <p className="text-lg font-bold text-uninus-dark">
+          Pesan Anda terkirim!
+        </p>
+        <p className="mt-2 text-sm text-gray-600">
+          Terima kasih, {form.name || "Sobat UNINUS Press"}. Tim kami akan
+          segera menghubungi Anda.
+        </p>
+      </div>
+    );
   }
 
   return (
-    <form className="contact-form" onSubmit={handleSubmit}>
-      <label>
-        Nama
+    <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+      <div>
+        <label
+          htmlFor="name"
+          className="mb-1.5 block text-sm font-semibold text-gray-700"
+        >
+          Nama Lengkap
+        </label>
         <input
-          name="name"
+          id="name"
+          type="text"
+          required
           value={form.name}
-          onChange={handleChange}
-          required
-          minLength={2}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none transition-colors focus:border-uninus"
+          placeholder="Nama Anda"
         />
-      </label>
-      <label>
-        Email
+      </div>
+      <div>
+        <label
+          htmlFor="email"
+          className="mb-1.5 block text-sm font-semibold text-gray-700"
+        >
+          Email
+        </label>
         <input
-          name="email"
+          id="email"
           type="email"
+          required
           value={form.email}
-          onChange={handleChange}
-          required
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none transition-colors focus:border-uninus"
+          placeholder="nama@email.com"
         />
-      </label>
-      <label>
-        Subjek
-        <input
-          name="subject"
-          value={form.subject}
-          onChange={handleChange}
-          required
-          minLength={3}
-        />
-      </label>
-      <label>
-        Pesan
+      </div>
+      <div>
+        <label
+          htmlFor="message"
+          className="mb-1.5 block text-sm font-semibold text-gray-700"
+        >
+          Pesan
+        </label>
         <textarea
-          name="message"
-          value={form.message}
-          onChange={handleChange}
-          rows={5}
+          id="message"
           required
-          minLength={10}
+          rows={5}
+          value={form.message}
+          onChange={(e) => setForm({ ...form, message: e.target.value })}
+          className="w-full resize-none rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none transition-colors focus:border-uninus"
+          placeholder="Tulis pesan Anda..."
         />
-      </label>
-
-      {status === "success" && (
-        <p className="form-msg success">
-          Pesan Anda berhasil dikirim. Kami akan segera menghubungi Anda.
-        </p>
-      )}
-      {status === "error" && <p className="form-msg error">{error}</p>}
-
+      </div>
       <button
         type="submit"
-        className="btn btn-primary"
-        disabled={status === "sending"}
+        className="w-full rounded-full bg-uninus px-8 py-3.5 text-sm font-bold text-white transition-colors hover:bg-uninus-dark"
       >
-        {status === "sending" ? "Mengirim..." : "Kirim Pesan"}
+        Kirim Pesan
       </button>
     </form>
   );

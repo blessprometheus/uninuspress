@@ -1,25 +1,35 @@
 import type { Metadata } from "next";
+import { Plus_Jakarta_Sans } from "next/font/google";
+import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { AuthProvider } from "@/components/AuthProvider";
-import "./globals.css";
+import { AuthProvider } from "@/context/AuthContext";
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-plus-jakarta-sans",
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
-    default: "Uninus Press — Penerbitan Buku Universitas Islam Nusantara",
-    template: "%s | Uninus Press",
+    default: "UNINUS Press - Penerbitan Buku",
+    template: "%s | UNINUS Press",
   },
   description:
-    "Uninus Press adalah penerbit universitas yang melayani penerbitan buku akademik, pendidikan, dan karya kreatif.",
+    "UNINUS Press adalah unit penerbitan Universitas Islam Nusantara yang melayani pengajuan dan penerbitan buku secara transparan.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="id">
-      <body>
+    <html
+      lang="id"
+      className={`${plusJakartaSans.variable} h-full antialiased`}
+    >
+      <body className="flex min-h-full flex-col">
         <AuthProvider>
           <Header />
-          <main>{children}</main>
+          <main className="flex-1">{children}</main>
           <Footer />
         </AuthProvider>
       </body>

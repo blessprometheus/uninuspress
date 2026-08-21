@@ -1,71 +1,84 @@
 export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api";
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
 
-const TOKEN_KEY = "uninus_press_token";
+export class ApiError extends Error {
+  status: number;
+  errors?: Record<string, string[]>;
 
-export function getToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return window.localStorage.getItem(TOKEN_KEY);
-}
-
-export function setToken(token: string) {
-  if (typeof window !== "undefined") {
-    window.localStorage.setItem(TOKEN_KEY, token);
+  constructor(status: number, message: string, errors?: Record<string, string[]>) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.errors = errors;
   }
 }
 
-export function clearToken() {
-  if (typeof window !== "undefined") {
-    window.localStorage.removeItem(TOKEN_KEY);
-  }
+interface ApiOptions {
+  method?: string;
+  token?: string | null;
+  body?: unknown;
+  form?: FormData;
 }
 
-export async function fetchApi<T>(
-  path: string,
-  init?: RequestInit,
-): Promise<T> {
-  const token = getToken();
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    ...(init?.headers as Record<string, string> | undefined),
-  };
-  if (token) headers.Authorization = `Bearer ${token}`;
-
-  const res = await fetch(`${API_URL}${path}`, {
-    ...init,
-    headers,
-  });
-
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    const message =
-      (body as { message?: string | string[] }).message ?? "Terjadi kesalahan";
-    throw new Error(Array.isArray(message) ? message.join(", ") : message);
-  }
-
-  return res.json() as Promise<T>;
-}
-
-export async function fetchApiFormData<T>(
-  path: string,
-  formData: FormData,
-): Promise<T> {
-  const token = getToken();
+export async function api<T>(path: string, options: ApiOptions = {}): Promise<T> {
   const headers: Record<string, string> = {};
-  if (token) headers.Authorization = `Bearer ${token}`;
-
-  const res = await fetch(`${API_URL}${path}`, {
-    method: "POST",
-    headers,
-    body: formData,
-  });
-
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    const message =
-      (body as { message?: string | string[] }).message ?? "Terjadi kesalahan";
-    throw new Error(Array.isArray(message) ? message.join(", ") : message);
+  if (options.token) {
+    headers.Authorization = `Bearer ${options.token}`;
   }
 
-  return res.json() as Promise<T>;
+  let body: BodyInit | undefined;
+  if (options.form) {
+    body = options.form;
+  } else if (options.body !== undefined) {
+    headers["Content-Type"] = "application/json";
+    body = JSON.stringify(options.body);
+  }
+
+  const res = await fetch(`${API_URL}${path}`, {
+    method: options.method ?? "GET",
+    headers,
+    body,
+  });
+
+  const data = await res.json().catch(() => null);
+
+  if (!res.ok) {
+    const message = data?.message ?? "Terjadi kesalahan pada server.";
+    throw new ApiError(res.status, message, data?.errors);
+  }
+
+  return data as T;
+}
+
+export async function downloadFile(
+  path: string,
+  token: string | null,
+  filename: string,
+): Promise<void> {
+  const headers: Record<string, string> = {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${API_URL}${path}`, { headers });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new ApiError(res.status, data?.message ?? "Gagal mengunduh berkas.");
+  }
+
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+export function firstError(errors: Record<string, string[]> | undefined, fallback: string): string {
+  if (!errors) return fallback;
+  const firstKey = Object.keys(errors)[0];
+  return firstKey ? errors[firstKey][0] : fallback;
 }
