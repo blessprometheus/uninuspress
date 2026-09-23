@@ -9,6 +9,7 @@ const navItems = [
   { href: "/", label: "Beranda" },
   { href: "/tentang", label: "Tentang" },
   { href: "/layanan", label: "Layanan" },
+  { href: "/#paket-penerbitan", label: "Paket" },
   { href: "/toko-buku", label: "Toko Buku" },
   { href: "/kontak", label: "Kontak" },
 ];
@@ -22,7 +23,7 @@ export default function Header() {
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-3">
           <Image
-            src="/logo-uninus.png"
+            src="/logo-uninus.jpg"
             alt="Logo UNINUS"
             width={48}
             height={48}

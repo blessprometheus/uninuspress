@@ -59,9 +59,9 @@ export default function CreateSubmissionForm({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="rounded-full bg-uninus px-6 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-uninus-dark"
+          className="inline-flex min-h-[44px] items-center rounded-full bg-uninus px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-uninus-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-uninus focus-visible:ring-offset-2"
         >
-          + Buat Pengajuan Baru
+          + Buat Draft Pengajuan
         </button>
       ) : (
         <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
@@ -70,7 +70,8 @@ export default function CreateSubmissionForm({
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="rounded-lg p-1 text-gray-400 hover:text-gray-600"
+              aria-label="Tutup formulir pengajuan baru"
+              className="flex h-11 w-11 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-uninus focus-visible:ring-offset-2"
             >
               <svg
                 className="h-5 w-5"
@@ -166,7 +167,7 @@ export default function CreateSubmissionForm({
             <button
               type="submit"
               disabled={busy}
-              className="w-full rounded-full bg-uninus px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-uninus-dark disabled:opacity-60"
+              className="w-full rounded-full bg-uninus px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-uninus-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-uninus focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {busy ? "Menyimpan..." : "Simpan Draft"}
             </button>

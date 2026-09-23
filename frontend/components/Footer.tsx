@@ -17,7 +17,7 @@ export default function Footer() {
         <div>
           <div className="flex items-center gap-3">
             <Image
-              src="/logo-uninus.png"
+              src="/logo-uninus.jpg"
               alt="Logo UNINUS"
               width={40}
               height={40}

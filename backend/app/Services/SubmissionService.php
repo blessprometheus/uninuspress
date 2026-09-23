@@ -5,8 +5,10 @@ namespace App\Services;
 use App\Models\Submission;
 use App\Models\SubmissionHistory;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
 
@@ -20,6 +22,8 @@ use Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
  */
 class SubmissionService
 {
+    public function __construct(private readonly BookService $books = new BookService()) {}
+
     /**
      * Mapping stage → label bahasa Indonesia untuk user.
      * Sumber kebenaran: docs/requirements.md #11.
@@ -80,6 +84,7 @@ class SubmissionService
             ]);
 
             $submission->current_status = static::statusLabel(Submission::STAGE_DRAFT);
+            $submission->va_number = 'VA-UNINUS-'.str_pad($submission->id, 2, '0', STR_PAD_LEFT).'-'.now()->year;
             $submission->save();
 
             SubmissionHistory::create([
@@ -199,18 +204,158 @@ class SubmissionService
             }
         }
 
-        return $this->transition($submission, Submission::STAGE_SUBMITTED, $user, 'SUBMITTED', null);
+        $submission = $this->transition($submission, Submission::STAGE_SUBMITTED, $user, 'SUBMITTED', null);
+
+        try {
+            $this->generateReceipt($submission);
+        } catch (\Throwable $e) {
+            // PDF bukti pengajuan adalah pelengkap, bukan syarat inti alur submit.
+            // Jangan sampai kegagalan render PDF (mis. gambar kwitansi terlalu besar)
+            // menggagalkan submit yang sebenarnya sudah berhasil di atas.
+            report($e);
+        }
+
+        return $submission->fresh();
+    }
+
+    /**
+     * Buat PDF bukti pengajuan (ringkasan isian + daftar dokumen + bukti bayar)
+     * setiap kali user submit/submit ulang. Disimpan sebagai media ter-versi
+     * seperti dokumen lain, agar riwayatnya tetap tersimpan (ADR-001).
+     */
+    private function generateReceipt(Submission $submission): void
+    {
+        $submission->load('author');
+
+        $paymentReceipt = $submission->latestDocument(Submission::COLLECTION_PAYMENT_RECEIPT);
+        $paymentReceiptCanRead = $paymentReceipt
+            && str_starts_with((string) $paymentReceipt->mime_type, 'image/')
+            // Path lokal hanya bisa dibaca dompdf kalau disk-nya lokal (bukan S3/Wasabi).
+            && config("filesystems.disks.{$paymentReceipt->disk}.driver") === 'local';
+
+        // Kecilkan gambar kwitansi dulu (foto asli dari user bisa berukuran besar
+        // dan pernah membuat dompdf kehabisan memory saat merender PNG beresolusi
+        // tinggi). Dipasang sebagai data URI supaya dompdf tidak perlu membaca
+        // ulang file besar aslinya.
+        $paymentReceiptImageDataUri = $paymentReceiptCanRead
+            ? $this->resizeImageToDataUri($paymentReceipt->getPath())
+            : null;
+
+        $documents = collect(Submission::requiredUserDocumentCollections())
+            ->mapWithKeys(fn (string $collection) => [
+                $collection => $submission->latestDocument($collection),
+            ]);
+
+        $pdf = Pdf::loadView('pdf.submission-receipt', [
+            'submission' => $submission,
+            'documents' => $documents,
+            'paymentReceipt' => $paymentReceipt,
+            'paymentReceiptImageDataUri' => $paymentReceiptImageDataUri,
+            'generatedAt' => now(),
+        ]);
+
+        $version = $submission->documentVersions(Submission::COLLECTION_SUBMISSION_RECEIPT)->count() + 1;
+
+        $submission->addMediaFromString($pdf->output())
+            ->usingFileName('bukti_pengajuan_v'.$version.'.pdf')
+            ->toMediaCollection(Submission::COLLECTION_SUBMISSION_RECEIPT);
+    }
+
+    /**
+     * Baca gambar dari path lokal, kecilkan ke maksimal 900px sisi terpanjang,
+     * lalu kembalikan sebagai data URI JPEG. Mengembalikan null bila gambar
+     * gagal dibaca/diproses (format tidak didukung GD, dsb) — pemanggil harus
+     * menangani null dengan menampilkan fallback teks di PDF.
+     */
+    private function resizeImageToDataUri(string $path, int $maxDimension = 900): ?string
+    {
+        if (! extension_loaded('gd') || ! is_readable($path)) {
+            return null;
+        }
+
+        $info = @getimagesize($path);
+        if (! $info) {
+            return null;
+        }
+        [$width, $height, $type] = $info;
+
+        // Foto kamera/screenshot asli bisa >10 megapixel — decode ke bitmap mentah
+        // (lebar x tinggi x 4 byte) butuh memory jauh lebih besar dari limit default
+        // 128M dan pernah membuat proses ini fatal error. Naikkan sementara, dan
+        // tolak file yang benar-benar di luar wajar untuk foto kwitansi.
+        if ($width * $height > 40_000_000) {
+            return null;
+        }
+        $originalLimit = ini_get('memory_limit');
+        ini_set('memory_limit', '512M');
+
+        try {
+            $source = match ($type) {
+                IMAGETYPE_JPEG => @imagecreatefromjpeg($path),
+                IMAGETYPE_PNG => @imagecreatefrompng($path),
+                IMAGETYPE_WEBP => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($path) : false,
+                default => false,
+            };
+            if (! $source) {
+                return null;
+            }
+
+            $scale = min(1, $maxDimension / max($width, $height));
+            $targetW = max(1, (int) round($width * $scale));
+            $targetH = max(1, (int) round($height * $scale));
+
+            $resized = imagecreatetruecolor($targetW, $targetH);
+            // Latar putih supaya PNG transparan tidak jadi hitam saat dikonversi ke JPEG.
+            $white = imagecolorallocate($resized, 255, 255, 255);
+            imagefill($resized, 0, 0, $white);
+            imagecopyresampled($resized, $source, 0, 0, 0, 0, $targetW, $targetH, $width, $height);
+            imagedestroy($source);
+
+            ob_start();
+            imagejpeg($resized, null, 80);
+            $jpegData = ob_get_clean();
+            imagedestroy($resized);
+
+            if (! $jpegData) {
+                return null;
+            }
+
+            return 'data:image/jpeg;base64,'.base64_encode($jpegData);
+        } catch (\Throwable) {
+            return null;
+        } finally {
+            ini_set('memory_limit', $originalLimit);
+        }
     }
 
     /**
      * Koleksi yang belum punya dokumen (hanya dipakai untuk submit pertama).
+     * Hanya mengecek dokumen yang wajib diunggah USER (6 dokumen awal);
+     * koleksi hasil kerja pelaksana/admin divalidasi di tahap masing-masing.
      */
     public function missingDocumentCollections(Submission $submission): array
     {
         return array_values(array_filter(
-            Submission::documentCollections(),
+            Submission::requiredUserDocumentCollections(),
             fn (string $c) => $submission->documentVersions($c)->isEmpty()
         ));
+    }
+
+    /**
+     * Hitung media pada sebuah collection via query DB segar.
+     *
+     * Menggunakan query eksplisit (bukan $submission->getMedia()) agar tetap
+     * akurat ketika dipanggil dalam request yang SAMA setelah addMedia()
+     * menyimpan media — Spatie men-cache relation `media` di instance model,
+     * sehingga getMedia() bisa mengembalikan 0 padahal media sudah tersimpan.
+     */
+    private function mediaCount(Submission $submission, string $collection): int
+    {
+        return Media::query()
+            ->where('model_type', $submission->getMorphClass())
+            ->where('model_id', $submission->getKey())
+            ->where('collection_name', $collection)
+            ->count();
     }
 
     /**
@@ -386,10 +531,10 @@ class SubmissionService
                 "Layouting hanya bisa diselesaikan dari stage LAYOUTING. Saat ini: {$submission->current_stage}."
             );
         }
-        if (! $submission->getMedia(Submission::COLLECTION_LAYOUT_PDF)->count()) {
+        if (! $this->mediaCount($submission, Submission::COLLECTION_LAYOUT_PDF)) {
             throw new \DomainException("PDF layout wajib diunggah sebelum menyelesaikan layouting.");
         }
-        if (! $submission->getMedia(Submission::COLLECTION_FINAL_WORD)->count()) {
+        if (! $this->mediaCount($submission, Submission::COLLECTION_FINAL_WORD)) {
             throw new \DomainException("Word final wajib diunggah sebelum menyelesaikan layouting.");
         }
         return $this->transition(
@@ -414,13 +559,20 @@ class SubmissionService
                 "Pengusulan Perpusnas hanya dari stage LAYOUT_COMPLETED. Saat ini: {$submission->current_stage}."
             );
         }
-        return $this->transition(
+        $submission = $this->transition(
             $submission,
             Submission::STAGE_PERPUSNAS_SUBMISSION,
             $admin,
             'SUBMITTED_TO_PERPUSNAS',
             $note
         );
+
+        // Buku tampil di Toko Buku sejak diusulkan ke Perpusnas — bukan menunggu
+        // COMPLETED — karena daftar pengajuan ISBN mengharuskan link buku sudah ada.
+        // Cover diganti ke versi ber-ISBN oleh admin setelah nomor ISBN terbit.
+        $this->books->publishFromSubmission($submission);
+
+        return $submission;
     }
 
     /**
@@ -462,7 +614,7 @@ class SubmissionService
                 "Penerimaan hasil Perpusnas hanya dari stage WAITING_PERPUSNAS. Saat ini: {$submission->current_stage}."
             );
         }
-        if (! $submission->getMedia(Submission::COLLECTION_PERPUSNAS_RESULT)->count()) {
+        if (! $this->mediaCount($submission, Submission::COLLECTION_PERPUSNAS_RESULT)) {
             throw new \DomainException("PDF hasil Perpusnas wajib diunggah.");
         }
         return $this->transition(

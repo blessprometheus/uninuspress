@@ -42,6 +42,7 @@ export interface Documents {
   layout_pdf: MediaItem[];
   final_word: MediaItem[];
   perpusnas_result_pdf: MediaItem[];
+  submission_receipt: MediaItem[];
 }
 
 /** Riwayat/audit trail. */
@@ -67,6 +68,7 @@ export interface Submission {
   author_name: string;
   synopsis: string | null;
   category: string;
+  va_number: string | null;
   current_stage: string;
   current_status: string;
   submitted_at: string | null;
@@ -177,6 +179,10 @@ export interface Book {
   cover_url: string | null;
   price: number | null;
   synopsis?: string | null;
+  /** null selama proses penomoran di Perpusnas; diisi admin setelah ISBN terbit. */
+  isbn?: string | null;
+  is_published?: boolean;
+  submission_id?: number | null;
 }
 
 /** Stage workflow — konstanta dari backend Submission model. */

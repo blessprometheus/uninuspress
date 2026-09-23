@@ -37,8 +37,8 @@ export default function MasukPage() {
     <>
       <PageHero title="Masuk" subtitle="Masuk ke dashboard untuk mengelola pengajuan naskah Anda." />
       <section className="mx-auto max-w-md px-4 py-16 sm:px-6">
-        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-          <h2 className="text-xl font-bold text-gray-900">Masuk Akun</h2>
+        <div className="rounded-2xl border border-ink/10 bg-white p-8 shadow-sm">
+          <h2 className="font-display text-2xl font-semibold text-ink">Masuk Akun</h2>
           <p className="mt-1 text-sm text-gray-600">
             Gunakan email dan kata sandi yang terdaftar.
           </p>

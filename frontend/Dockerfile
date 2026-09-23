@@ -4,7 +4,7 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci
 COPY . .
-ENV NEXT_PUBLIC_API_URL=/api/v1
+ENV NEXT_PUBLIC_API_URL=/api
 RUN npm run build
 
 # ---- Runtime stage ----

@@ -19,7 +19,7 @@ export default function KontakPage() {
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-2">
           <div>
-            <h2 className="text-2xl font-extrabold text-uninus-dark">
+            <h2 className="font-display text-2xl font-semibold text-ink">
               Informasi Kontak
             </h2>
             <div className="mt-8 space-y-6">
@@ -31,7 +31,7 @@ export default function KontakPage() {
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="flex items-start gap-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm"
+                  className="flex items-start gap-4 rounded-2xl border border-ink/10 bg-white p-6 shadow-sm"
                 >
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-uninus-soft text-uninus">
                     <svg
@@ -73,8 +73,8 @@ export default function KontakPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-            <h2 className="text-2xl font-extrabold text-uninus-dark">
+          <div className="rounded-2xl border border-ink/10 bg-white p-8 shadow-sm">
+            <h2 className="font-display text-2xl font-semibold text-ink">
               Kirim Pesan
             </h2>
             <p className="mt-2 text-sm text-gray-600">

@@ -44,8 +44,8 @@ export default function DaftarPage() {
     <>
       <PageHero title="Daftar Akun" subtitle="Buat akun untuk mulai mengajukan naskah penerbitan Anda." />
       <section className="mx-auto max-w-md px-4 py-16 sm:px-6">
-        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-          <h2 className="text-xl font-bold text-gray-900">Buat Akun</h2>
+        <div className="rounded-2xl border border-ink/10 bg-white p-8 shadow-sm">
+          <h2 className="font-display text-2xl font-semibold text-ink">Buat Akun</h2>
           <p className="mt-1 text-sm text-gray-600">
             Setelah mendaftar, Anda bisa langsung mengajukan naskah.
           </p>

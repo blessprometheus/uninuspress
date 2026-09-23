@@ -77,6 +77,44 @@ export async function downloadFile(
   URL.revokeObjectURL(url);
 }
 
+/**
+ * Buka berkas (mis. PDF) di tab baru untuk dilihat/dicetak, bukan dipaksa
+ * unduh. Tab kosong dibuka lebih dulu (synchronous, sebelum fetch) supaya
+ * tidak diblokir popup blocker karena request-nya async.
+ */
+export async function openFileInNewTab(path: string, token: string | null): Promise<void> {
+  const win = window.open("", "_blank");
+
+  const headers: Record<string, string> = {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}${path}`, { headers });
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      throw new ApiError(res.status, data?.message ?? "Gagal membuka berkas.");
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    if (win) {
+      win.location.href = url;
+    } else {
+      // Popup diblokir browser → fallback unduh langsung.
+      const a = document.createElement("a");
+      a.href = url;
+      a.target = "_blank";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+  } catch (err) {
+    win?.close();
+    throw err;
+  }
+}
+
 export function firstError(errors: Record<string, string[]> | undefined, fallback: string): string {
   if (!errors) return fallback;
   const firstKey = Object.keys(errors)[0];

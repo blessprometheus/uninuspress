@@ -18,6 +18,7 @@ class SubmissionResource extends JsonResource
             'author_name' => $this->author_name,
             'synopsis' => $this->synopsis,
             'category' => $this->category,
+            'va_number' => $this->va_number,
             'current_stage' => $this->current_stage,
             'current_status' => $this->current_status,
             'submitted_at' => $this->submitted_at?->toISOString(),
@@ -47,6 +48,7 @@ class SubmissionResource extends JsonResource
                 'layout_pdf' => $this->documentVersions(\App\Models\Submission::COLLECTION_LAYOUT_PDF)->map(fn ($m) => $this->mediaResource($m)),
                 'final_word' => $this->documentVersions(\App\Models\Submission::COLLECTION_FINAL_WORD)->map(fn ($m) => $this->mediaResource($m)),
                 'perpusnas_result_pdf' => $this->documentVersions(\App\Models\Submission::COLLECTION_PERPUSNAS_RESULT)->map(fn ($m) => $this->mediaResource($m)),
+                'submission_receipt' => $this->documentVersions(Submission::COLLECTION_SUBMISSION_RECEIPT)->map(fn ($m) => $this->mediaResource($m)),
             ]),
 
             'history' => SubmissionHistoryResource::collection(

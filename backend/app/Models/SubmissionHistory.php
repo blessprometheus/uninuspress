@@ -11,6 +11,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class SubmissionHistory extends Model
 {
+    /**
+     * Tabel yang terkait dengan model.
+     * Nama tabel singular (submission_history) sesuai definisi migration;
+     * tanpa deklarasi ini Eloquent akan meng-plural-kan nama class.
+     */
+    protected $table = 'submission_history';
+
     public $timestamps = false;
 
     protected $fillable = [

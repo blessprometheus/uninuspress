@@ -1,12 +1,18 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AdminBookController;
 use App\Http\Controllers\Api\Admin\AdminSubmissionController;
 use App\Http\Controllers\Api\Admin\AdminUserController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\PasswordResetController;
+use App\Http\Controllers\Api\BookController;
 use App\Http\Controllers\Api\Executors\ExecutorSubmissionController;
 use App\Http\Controllers\Api\Submissions\UserSubmissionController;
 use Illuminate\Support\Facades\Route;
+
+// Toko Buku (publik)
+Route::get('books', [BookController::class, 'index']);
+Route::get('books/{slug}', [BookController::class, 'show']);
 
 Route::prefix('auth')->group(function (): void {
     Route::post('register', [AuthController::class, 'register']);
@@ -28,6 +34,9 @@ Route::middleware('auth:sanctum')->prefix('submissions')->group(function (): voi
     Route::get('{submission}', [UserSubmissionController::class, 'show']);
     Route::post('{submission}/documents', [UserSubmissionController::class, 'uploadDocument']);
     Route::post('{submission}/submit', [UserSubmissionController::class, 'submit']);
+    Route::get('{submission}/documents/{media}/download', [UserSubmissionController::class, 'downloadDocument'])
+        ->whereNumber('media');
+    Route::post('{submission}/finalize', [UserSubmissionController::class, 'finalize']);
 });
 
 // Akses ADMIN
@@ -44,6 +53,10 @@ Route::middleware(['auth:sanctum', 'role:ADMIN'])->prefix('admin')->group(functi
     Route::get('pelaksana', [AdminUserController::class, 'indexPelaksana']);
     Route::post('pelaksana', [AdminUserController::class, 'createPelaksana']);
     Route::patch('pelaksana/{user}/toggle-active', [AdminUserController::class, 'toggleActivePelaksana']);
+
+    Route::get('books', [AdminBookController::class, 'index']);
+    Route::patch('books/{book}', [AdminBookController::class, 'update']);
+    Route::post('books/{book}/cover', [AdminBookController::class, 'uploadCover']);
 });
 
 // Akses PELAKSANA (hanya pengajuan yang ditugaskan)

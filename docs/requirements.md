@@ -48,7 +48,14 @@ Dokumen readiness hasil sesi grilling sebelum implementasi. Dokumen ini adalah *
 ### Fase 6 & 7 — Non-fungsional & UI/UX
 17. Perkiraan skala awal: ~100 user.
 18. Akses file privat: pemilik pengajuan, admin, dan pelaksana yang ditugaskan.
-19. Buku dipublish ke landing page setelah `COMPLETED`, data diinput manual oleh admin.
+19. ~~Buku dipublish ke landing page setelah `COMPLETED`, data diinput manual oleh admin.~~
+    **Direvisi (2026-09-23, lihat ADR-005):** buku tampil di Toko Buku sejak
+    admin mengusulkan ke Perpusnas (`PERPUSNAS_SUBMISSION`), bukan menunggu
+    `COMPLETED` — karena daftar pengajuan ISBN ke Perpusnas mengharuskan
+    pencantuman link buku. Data diambil otomatis dari submission (judul,
+    penulis, sinopsis, kategori, cover depan sebagai cover sementara). Admin
+    mengganti cover dengan versi ber-ISBN + mengisi nomor ISBN setelah nomor
+    terbit dari Perpusnas (dashboard admin → Toko Buku).
 20. Menu Toko Buku = daftar buku terpublish, tanpa pembayaran online di rilis pertama.
 21. Brand: logo UNINUS akan dimasukkan user ke folder; warna landing page mengikuti uninus.ac.id; konten disiapkan sebagai draft oleh tim teknis lalu direvisi user.
 
@@ -69,7 +76,18 @@ Dokumen readiness hasil sesi grilling sebelum implementasi. Dokumen ini adalah *
 
 ## Area Berisiko
 
-- **Fitur publish buku ke landing page** — baru, tidak ada di AGENTS.md → butuh desain data model dan rule admin.
+- **Fitur publish buku ke landing page** — sudah diimplementasikan (model `Book`, auto-publish saat `submitToPerpusnas`, admin bisa update ISBN/harga/cover). Lihat ADR-005.
 - **Versioning dokumen revisi** — kompleksitas tinggi; pola versi harus diputuskan sebelum coding M1.
 - **Role ganda (USER + PELAKSANA)** — butuh middleware akses yang ketat.
 - **Batas 10 pengajuan aktif** — wajib di-enforce di backend, bukan frontend.
+
+## Perubahan Setelah Sesi Awal
+
+- **2026-09-23 — PDF bukti pengajuan.** Setiap kali user submit/submit ulang,
+  sistem otomatis membuat PDF ringkasan isian pengajuan (judul, penulis,
+  kategori, checklist 6 dokumen wajib, konfirmasi bukti bayar) sebagai bukti
+  fisik yang bisa dicetak. Disimpan sebagai media ter-versi
+  (`submission_receipt`) mengikuti pola versioning ADR-001, bisa diunduh user
+  dari dashboard.
+- **2026-09-23 — Publish buku sebelum ISBN terbit.** Lihat revisi poin #19 di
+  atas dan ADR-005.

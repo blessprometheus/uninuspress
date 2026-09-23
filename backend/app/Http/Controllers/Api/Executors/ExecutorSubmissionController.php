@@ -25,7 +25,7 @@ class ExecutorSubmissionController extends Controller
         $user = $request->user();
         $submissions = Submission::query()
             ->where('assigned_executor_id', $user->id)
-            ->with(['author', 'executor', 'history.actor'])
+            ->with(['author', 'executor', 'history.actor', 'media'])
             ->latest('id')
             ->paginate(20);
 

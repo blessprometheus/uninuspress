@@ -25,7 +25,7 @@ class AdminSubmissionController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Submission::query()->with(['author', 'executor', 'history.actor']);
+        $query = Submission::query()->with(['author', 'executor', 'history.actor', 'media']);
 
         if ($stage = $request->query('stage')) {
             $query->where('current_stage', $stage);
@@ -35,6 +35,12 @@ class AdminSubmissionController extends Controller
         }
         if ($userId = $request->query('user_id')) {
             $query->where('user_id', $userId);
+        }
+        if ($q = trim((string) $request->query('q'))) {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('title', 'like', "%{$q}%")
+                    ->orWhere('author_name', 'like', "%{$q}%");
+            });
         }
 
         $submissions = $query->latest('id')->paginate(20);
@@ -195,10 +201,14 @@ class AdminSubmissionController extends Controller
     public function uploadPerpusnasResult(PerpusnasUploadRequest $request, Submission $submission): JsonResponse
     {
         try {
+            $version = \Spatie\MediaLibrary\MediaCollections\Models\Media::query()
+                ->where('model_type', $submission->getMorphClass())
+                ->where('model_id', $submission->getKey())
+                ->where('collection_name', Submission::COLLECTION_PERPUSNAS_RESULT)
+                ->count() + 1;
+
             $submission->addMedia($request->file('file'))
-                ->usingFileName('perpusnas_result_v'.
-                    ($submission->documentVersions(Submission::COLLECTION_PERPUSNAS_RESULT)->count() + 1).
-                    '.pdf')
+                ->usingFileName('perpusnas_result_v'.$version.'.pdf')
                 ->toMediaCollection(Submission::COLLECTION_PERPUSNAS_RESULT);
 
             $submission = $this->service->receivePerpusnasResult(
@@ -210,7 +220,7 @@ class AdminSubmissionController extends Controller
             throw ValidationException::withMessages(['perpusnas' => $e->getMessage()]);
         }
 
-        $submission->load(['author', 'executor', 'history.actor']);
+        $submission->load(['author', 'executor', 'history.actor', 'media']);
         return response()->json([
             'message' => 'Hasil Perpusnas berhasil diunggah. User akan menerima notifikasi.',
             'data' => (new SubmissionResource($submission))->resolve(),

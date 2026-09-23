@@ -31,11 +31,12 @@ services:
       QUEUE_CONNECTION: database
       SESSION_DRIVER: database
       FILESYSTEM_DISK: s3
+      MEDIA_DISK: s3
       APP_URL: ${APP_URL}
       FRONTEND_URL: ${FRONTEND_URL}
     volumes:
       - storage-data:/var/www/html/storage/app
-    command: sh -c "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=9000"
+    command: sh -c "php artisan migrate --force && php artisan db:seed --class=RoleSeeder --force && php artisan serve --host=0.0.0.0 --port=9000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -44,7 +45,7 @@ services:
     build: ./frontend
     restart: unless-stopped
     environment:
-      NEXT_PUBLIC_API_URL: /api/v1
+      NEXT_PUBLIC_API_URL: /api
     depends_on:
       - backend
 

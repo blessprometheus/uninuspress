@@ -7,7 +7,11 @@
   --color-uninus-yellow: #fbc02d;
   --color-uninus-soft: #e8f5ee;
 
+  --color-ink: #0b2a1e;
+  --color-paper: #fcfdfb;
+
   --font-sans: var(--font-plus-jakarta-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-eb-garamond), Georgia, "Times New Roman", serif;
 }
 
 html {
@@ -20,6 +24,16 @@ body {
   background-color: #ffffff;
 }
 
+.font-display {
+  font-family: var(--font-serif);
+}
+
 .text-balance {
   text-wrap: balance;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }

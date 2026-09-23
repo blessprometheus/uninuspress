@@ -10,7 +10,9 @@ use App\Models\Submission;
 use App\Services\SubmissionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class UserSubmissionController extends Controller
 {
@@ -24,7 +26,7 @@ class UserSubmissionController extends Controller
     {
         $submissions = Submission::query()
             ->where('user_id', $request->user()->id)
-            ->with(['author', 'executor', 'history.actor'])
+            ->with(['author', 'executor', 'history.actor', 'media'])
             ->latest('id')
             ->paginate(20);
 
@@ -137,6 +139,50 @@ class UserSubmissionController extends Controller
 
         return response()->json([
             'message' => 'Pengajuan berhasil dikirim untuk diverifikasi admin.',
+            'data' => (new SubmissionResource($submission))->resolve(),
+        ]);
+    }
+
+    /**
+     * GET /api/submissions/{submission}/documents/{media}/download
+     * Unduh dokumen. Hanya pemilik / admin / pelaksana yang ditugaskan.
+     */
+    public function downloadDocument(Request $request, Submission $submission, int $media): StreamedResponse|JsonResponse
+    {
+        $user = $request->user();
+        if (! $submission->canAccess($user)) {
+            return response()->json(['message' => 'Anda tidak berhak mengakses dokumen ini.'], 403);
+        }
+
+        $media = \Spatie\MediaLibrary\MediaCollections\Models\Media::query()
+            ->where('model_type', Submission::class)
+            ->where('model_id', $submission->id)
+            ->where('id', $media)
+            ->first();
+
+        if (! $media) {
+            return response()->json(['message' => 'Dokumen tidak ditemukan.'], 404);
+        }
+
+        return $media->toResponse($request);
+    }
+
+    /**
+     * POST /api/submissions/{submission}/finalize
+     * User menerima hasil & menyelesaikan pengajuan → PERPUSNAS_RESULT_RECEIVED → COMPLETED.
+     */
+    public function finalize(Request $request, Submission $submission): JsonResponse
+    {
+        try {
+            $submission = $this->service->finalize($submission, $request->user());
+        } catch (\DomainException $e) {
+            throw ValidationException::withMessages(['submission' => $e->getMessage()]);
+        }
+
+        $submission->load(['author', 'executor', 'history.actor']);
+
+        return response()->json([
+            'message' => 'Pengajuan selesai. Terima kasih sudah menerbitkan bersama UNINUS Press.',
             'data' => (new SubmissionResource($submission))->resolve(),
         ]);
     }

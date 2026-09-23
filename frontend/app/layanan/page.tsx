@@ -75,12 +75,12 @@ export default function LayananPage() {
           {steps.map((step) => (
             <div
               key={step.no}
-              className="relative rounded-2xl border border-gray-100 bg-white p-6 shadow-sm"
+              className="relative rounded-2xl border border-ink/10 bg-white p-6 shadow-sm"
             >
-              <span className="text-3xl font-extrabold text-uninus-soft">
+              <span className="font-display text-4xl font-semibold text-uninus/30">
                 {step.no}
               </span>
-              <h3 className="mt-3 text-base font-bold text-gray-900">
+              <h3 className="mt-3 font-display text-lg font-semibold text-ink">
                 {step.title}
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-gray-600">
@@ -100,7 +100,7 @@ export default function LayananPage() {
           {serviceDetails.map((svc) => (
             <div
               key={svc.title}
-              className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm transition-all hover:-translate-y-1 hover:border-uninus hover:shadow-lg"
+              className="rounded-2xl border border-ink/10 bg-white p-8 shadow-sm transition-all hover:-translate-y-1 hover:border-uninus hover:shadow-lg"
             >
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-uninus-soft text-uninus">
                 <svg
@@ -117,7 +117,7 @@ export default function LayananPage() {
                   />
                 </svg>
               </div>
-              <h3 className="mt-5 text-lg font-bold text-gray-900">{svc.title}</h3>
+              <h3 className="font-display mt-5 text-xl font-semibold text-ink">{svc.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-gray-600">{svc.desc}</p>
             </div>
           ))}
@@ -132,11 +132,11 @@ export default function LayananPage() {
           />
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {requirements.map((req) => (
-              <div
-                key={req.label}
-                className="rounded-2xl bg-white p-5 text-center shadow-sm"
-              >
-                <p className="font-bold text-uninus-dark">{req.label}</p>
+                <div
+                  key={req.label}
+                  className="rounded-2xl border border-ink/10 bg-white p-5 text-center shadow-sm"
+                >
+                  <p className="font-display text-base font-semibold text-ink">{req.label}</p>
                 <p className="mt-1 text-xs text-gray-500">{req.note}</p>
               </div>
             ))}

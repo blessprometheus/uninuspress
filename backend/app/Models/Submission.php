@@ -29,6 +29,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
     'assigned_executor_id',
     'submitted_at',
     'completed_at',
+    'va_number',
 ])]
 class Submission extends Model implements HasMedia
 {
@@ -46,6 +47,26 @@ class Submission extends Model implements HasMedia
     public const string COLLECTION_LAYOUT_PDF = 'layout_pdf';
     public const string COLLECTION_FINAL_WORD = 'final_word';
     public const string COLLECTION_PERPUSNAS_RESULT = 'perpusnas_result_pdf';
+
+    /** PDF bukti pengajuan, dibuat otomatis oleh sistem tiap kali submit/submit ulang. */
+    public const string COLLECTION_SUBMISSION_RECEIPT = 'submission_receipt';
+
+    /**
+     * Koleksi dokumen yang wajib diunggah USER saat submit pertama (AGENTS.md).
+     * Koleksi layout_pdf / final_word / perpusnas_result_pdf dihasilkan kemudian
+     * oleh pelaksana / admin, sehingga tidak termasuk syarat submit awal.
+     */
+    public static function requiredUserDocumentCollections(): array
+    {
+        return [
+            self::COLLECTION_SYNOPSIS,
+            self::COLLECTION_MANUSCRIPT,
+            self::COLLECTION_COVER_FRONT,
+            self::COLLECTION_COVER_BACK,
+            self::COLLECTION_PAYMENT_RECEIPT,
+            self::COLLECTION_PLAGIARISM,
+        ];
+    }
 
     /** State workflow (AGENTS.md). */
     public const string STAGE_DRAFT = 'DRAFT';
@@ -120,6 +141,7 @@ class Submission extends Model implements HasMedia
             self::COLLECTION_LAYOUT_PDF,
             self::COLLECTION_FINAL_WORD,
             self::COLLECTION_PERPUSNAS_RESULT,
+            self::COLLECTION_SUBMISSION_RECEIPT,
         ];
     }
 

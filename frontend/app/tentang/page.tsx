@@ -47,9 +47,9 @@ export default function TentangPage() {
           ].map((item) => (
             <div
               key={item.title}
-              className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm"
+              className="rounded-2xl border border-ink/10 bg-white p-8 shadow-sm"
             >
-              <h3 className="inline-block border-b-2 border-uninus-yellow pb-1 text-lg font-bold text-uninus-dark">
+              <h3 className="font-display inline-block border-b-2 border-uninus-yellow pb-1 text-xl font-semibold text-ink">
                 {item.title}
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-gray-600">
@@ -75,12 +75,12 @@ export default function TentangPage() {
             ].map((member) => (
               <div
                 key={member.name}
-                className="rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
+                className="rounded-2xl border border-ink/10 bg-white p-6 text-center shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
               >
-                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-uninus text-xl font-extrabold text-white">
+                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-uninus font-display text-2xl font-semibold text-white">
                   {member.initial}
                 </div>
-                <h3 className="mt-4 text-sm font-bold leading-snug text-gray-900">
+                <h3 className="mt-4 text-sm font-bold leading-snug text-ink">
                   {member.name}
                 </h3>
                 <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-uninus">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { api, ApiError, downloadFile, firstError } from "@/lib/api";
+import { api, ApiError, downloadFile, openFileInNewTab, firstError } from "@/lib/api";
 import type {
   Pelaksana,
   Submission,
@@ -29,6 +29,7 @@ const COLLECTION_LABELS: Record<string, string> = {
   layout_pdf: "PDF Layout",
   final_word: "Word Final",
   perpusnas_result_pdf: "PDF Hasil Perpusnas",
+  submission_receipt: "Bukti Pengajuan (PDF)",
 };
 
 function formatDate(iso?: string | null): string {
@@ -66,6 +67,7 @@ export default function SubmissionCard({
   const [resultFile, setResultFile] = useState<File | null>(null);
 
   const stage = s.current_stage;
+  const receipt = s.documents?.submission_receipt?.[0] ?? null;
 
   const canExpand =
     isAdmin || isOwner || isAssignedPelaksana || s.documents || s.history;
@@ -120,6 +122,23 @@ export default function SubmissionCard({
     }
   }
 
+  async function handlePrintReceipt() {
+    const receipt = s.documents?.submission_receipt?.[0];
+    if (!receipt) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await openFileInNewTab(
+        `/submissions/${s.id}/documents/${receipt.id}/download`,
+        token,
+      );
+    } catch {
+      setError("Tidak dapat membuka bukti pengajuan.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleRequestRevision(kind: "admin" | "executor") {
     if (!note.trim()) {
       setError("Catatan revisi wajib diisi.");
@@ -142,7 +161,7 @@ export default function SubmissionCard({
       stage === STAGES.NEEDS_USER_REVISION_ADMIN ||
       stage === STAGES.NEEDS_USER_REVISION_EXECUTOR;
 
-    if (!editable && stage !== STAGES.DRAFT) return null;
+    if (!editable && stage !== STAGES.DRAFT && stage !== STAGES.PERPUSNAS_RESULT_RECEIVED) return null;
 
     return (
       <div className="mt-4 space-y-3">
@@ -156,13 +175,29 @@ export default function SubmissionCard({
             {busy ? "Memproses..." : "Ajukan Pengajuan"}
           </button>
         )}
+        {stage === STAGES.PERPUSNAS_RESULT_RECEIVED && (
+          <div className="rounded-xl border border-green-200 bg-green-50 p-4">
+            <p className="text-sm font-semibold text-green-800">
+              Hasil Perpusnas sudah tersedia. Silakan unduh di bagian detail,
+              lalu konfirmasi jika sudah selesai.
+            </p>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => act(`/submissions/${s.id}/finalize`)}
+              className="mt-3 rounded-full bg-green-700 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-800 disabled:opacity-60"
+            >
+              {busy ? "Memproses..." : "Saya Sudah Unduh & Selesaikan"}
+            </button>
+          </div>
+        )}
         <details className="rounded-xl border border-gray-100 bg-gray-50 p-3">
           <summary className="cursor-pointer text-sm font-semibold text-gray-700">
             Unggah / Perbarui Dokumen
           </summary>
           <div className="mt-3 space-y-4">
             {Object.entries(COLLECTION_LABELS)
-              .filter(([key]) => !["layout_pdf", "final_word", "perpusnas_result_pdf"].includes(key))
+              .filter(([key]) => !["layout_pdf", "final_word", "perpusnas_result_pdf", "submission_receipt"].includes(key))
               .map(([key, label]) => (
                 <form
                   key={key}
@@ -628,19 +663,53 @@ export default function SubmissionCard({
             </p>
           )}
         </div>
-        <span className="shrink-0 rounded-full bg-uninus-soft px-3 py-1 text-xs font-bold text-uninus">
-          {s.current_status || s.current_stage}
-        </span>
+        <div className="flex shrink-0 items-center gap-2">
+          {receipt && (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={handlePrintReceipt}
+              className="inline-flex items-center gap-1.5 rounded-full border border-uninus px-3 py-1.5 text-xs font-semibold text-uninus transition-colors hover:bg-uninus hover:text-white disabled:opacity-60"
+              title="Buka & cetak bukti pengajuan"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" />
+              </svg>
+              Cetak Bukti Pengajuan
+            </button>
+          )}
+          <span className="rounded-full bg-uninus-soft px-3 py-1 text-xs font-bold text-uninus">
+            {s.current_status || s.current_stage}
+          </span>
+        </div>
       </div>
 
       {error && (
-        <div className="mt-3 rounded-lg bg-red-50 px-4 py-2.5 text-sm font-medium text-red-700">
-          {error}
+        <div className="mt-3 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+          <svg
+            className="h-5 w-5 flex-shrink-0"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2.5}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          <span>{error}</span>
         </div>
       )}
       {success && (
-        <div className="mt-3 rounded-lg bg-green-50 px-4 py-2.5 text-sm font-medium text-green-700">
-          {success}
+        <div className="mt-3 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-800">
+          <svg
+            className="h-5 w-5 flex-shrink-0"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2.5}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          <span>{success}</span>
         </div>
       )}
 

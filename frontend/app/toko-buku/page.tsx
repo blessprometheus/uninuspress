@@ -73,7 +73,7 @@ export default function TokoBukuPage() {
               <Link
                 key={book.id}
                 href={`/buku/${book.slug}`}
-                className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:-translate-y-1 hover:border-uninus hover:shadow-lg"
+                className="group overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-sm transition-all hover:-translate-y-1 hover:border-uninus hover:shadow-lg"
               >
                 <div className="flex aspect-[3/4] items-center justify-center bg-uninus-soft p-6">
                   {book.cover_url ? (
@@ -94,10 +94,17 @@ export default function TokoBukuPage() {
                   )}
                 </div>
                 <div className="p-6">
-                  <span className="rounded-full bg-uninus-soft px-3 py-1 text-xs font-bold text-uninus">
-                    {book.category}
-                  </span>
-                  <h3 className="mt-3 text-base font-bold text-gray-900 group-hover:text-uninus-dark">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-uninus-soft px-3 py-1 text-xs font-bold text-uninus">
+                      {book.category}
+                    </span>
+                    {!book.isbn && (
+                      <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+                        Proses Penomoran ISBN
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="font-display mt-3 text-lg font-semibold text-ink group-hover:text-uninus-dark">
                     {book.title}
                   </h3>
                   <p className="mt-1 text-sm text-gray-600">{book.author}</p>
