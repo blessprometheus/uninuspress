@@ -214,7 +214,6 @@ function BookRow({
   const [isbn, setIsbn] = useState(book.isbn ?? "");
   const [price, setPrice] = useState(book.price != null ? String(book.price) : "");
   const [synopsis, setSynopsis] = useState(book.synopsis ?? "");
-  const [coverFile, setCoverFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -247,11 +246,9 @@ function BookRow({
     }
   }
 
-  async function uploadCover(e: FormEvent) {
-    e.preventDefault();
-    if (!coverFile) return;
+  async function uploadCover(file: File) {
     const form = new FormData();
-    form.append("cover", coverFile);
+    form.append("cover", file);
 
     setBusy(true);
     setError(null);
@@ -263,7 +260,6 @@ function BookRow({
         form,
       });
       onUpdated(res.book);
-      setCoverFile(null);
       setSuccess("Cover buku diperbarui.");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Gagal mengunggah cover.");
@@ -400,21 +396,27 @@ function BookRow({
         </button>
       </form>
 
-      <form onSubmit={uploadCover} className="mt-2 flex flex-wrap items-center gap-2">
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)}
-          className={`block flex-1 text-xs text-gray-600 file:mr-3 file:rounded-full file:border-0 file:bg-uninus-soft file:px-4 file:py-2 file:text-xs file:font-semibold file:text-uninus ${FOCUS_RING}`}
-        />
-        <button
-          type="submit"
-          disabled={busy || !coverFile}
-          className={`${BTN_CLS} rounded-full border border-uninus px-4 py-2 text-xs font-semibold text-uninus hover:bg-uninus hover:text-white disabled:opacity-60`}
+      <div className="mt-2">
+        <label
+          className={`${BTN_CLS} cursor-pointer rounded-full border border-uninus px-4 py-2 text-xs font-semibold text-uninus hover:bg-uninus hover:text-white ${busy ? "pointer-events-none opacity-60" : ""}`}
         >
-          Ganti Cover
-        </button>
-      </form>
+          {busy ? "Mengunggah..." : "Ganti Cover"}
+          <input
+            type="file"
+            accept="image/*"
+            disabled={busy}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              e.target.value = "";
+              if (file) uploadCover(file);
+            }}
+            className="hidden"
+          />
+        </label>
+        <p className="mt-1 text-[11px] text-gray-400">
+          Pilih gambar untuk langsung mengganti cover (tanpa tombol simpan terpisah).
+        </p>
+      </div>
       {formatPrice(book.price) !== "-" && (
         <p className="mt-2 text-xs text-gray-500">Harga saat ini: {formatPrice(book.price)}</p>
       )}
