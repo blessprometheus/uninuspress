@@ -90,7 +90,7 @@ export default function CreateSubmissionForm({
           </div>
 
           {error && (
-            <div className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+            <div role="alert" className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
               {error}
             </div>
           )}

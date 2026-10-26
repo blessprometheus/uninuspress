@@ -19,6 +19,10 @@ interface SubmissionCardProps {
   onDone?: () => void;
 }
 
+const FOCUS_RING =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-uninus focus-visible:ring-offset-2";
+const BTN_BASE = `inline-flex min-h-[44px] items-center justify-center whitespace-nowrap ${FOCUS_RING}`;
+
 const COLLECTION_LABELS: Record<string, string> = {
   synopsis: "Sinopsis",
   manuscript: "Naskah Word",
@@ -170,7 +174,7 @@ export default function SubmissionCard({
             type="button"
             disabled={busy}
             onClick={() => act(`/submissions/${s.id}/submit`)}
-            className="rounded-full bg-uninus px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-uninus-dark disabled:opacity-60"
+            className={`${BTN_BASE} rounded-full bg-uninus px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-uninus-dark disabled:opacity-60`}
           >
             {busy ? "Memproses..." : "Ajukan Pengajuan"}
           </button>
@@ -185,7 +189,7 @@ export default function SubmissionCard({
               type="button"
               disabled={busy}
               onClick={() => act(`/submissions/${s.id}/finalize`)}
-              className="mt-3 rounded-full bg-green-700 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-800 disabled:opacity-60"
+              className={`${BTN_BASE} mt-3 rounded-full bg-green-700 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-800 disabled:opacity-60`}
             >
               {busy ? "Memproses..." : "Saya Sudah Unduh & Selesaikan"}
             </button>
@@ -221,7 +225,7 @@ export default function SubmissionCard({
                   <button
                     type="submit"
                     disabled={busy}
-                    className="rounded-full border border-uninus px-4 py-2 text-xs font-semibold text-uninus transition-colors hover:bg-uninus hover:text-white disabled:opacity-60"
+                    className={`${BTN_BASE} rounded-full border border-uninus px-4 py-2 text-xs font-semibold text-uninus transition-colors hover:bg-uninus hover:text-white disabled:opacity-60`}
                   >
                     Unggah
                   </button>
@@ -242,7 +246,7 @@ export default function SubmissionCard({
               type="button"
               disabled={busy}
               onClick={() => act(`/admin/submissions/${s.id}/start-review`)}
-              className="rounded-full bg-uninus px-4 py-2 text-sm font-semibold text-white hover:bg-uninus-dark disabled:opacity-60"
+              className={`${BTN_BASE} rounded-full bg-uninus px-4 py-2 text-sm font-semibold text-white hover:bg-uninus-dark disabled:opacity-60`}
             >
               Mulai Review
             </button>
@@ -256,14 +260,14 @@ export default function SubmissionCard({
                 <button
                   type="button"
                   onClick={() => setShowNoteForm("admin")}
-                  className="rounded-full border border-amber-500 px-4 py-2 text-sm font-semibold text-amber-600 hover:bg-amber-50 disabled:opacity-60"
+                  className={`${BTN_BASE} rounded-full border border-amber-500 px-4 py-2 text-sm font-semibold text-amber-600 hover:bg-amber-50 disabled:opacity-60`}
                 >
                   Minta Revisi
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowNoteForm(null)}
-                  className="rounded-full bg-uninus px-4 py-2 text-sm font-semibold text-white hover:bg-uninus-dark"
+                  className={`${BTN_BASE} rounded-full bg-uninus px-4 py-2 text-sm font-semibold text-white hover:bg-uninus-dark`}
                 >
                   Setujui & Tugaskan
                 </button>
@@ -276,21 +280,21 @@ export default function SubmissionCard({
                   onChange={(e) => setNote(e.target.value)}
                   rows={3}
                   placeholder="Catatan perbaikan untuk user..."
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-uninus"
+                  className={`w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-uninus ${FOCUS_RING}`}
                 />
                 <div className="mt-2 flex gap-2">
                   <button
                     type="button"
                     disabled={busy}
                     onClick={() => handleRequestRevision("admin")}
-                    className="rounded-full bg-amber-500 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-600 disabled:opacity-60"
+                    className={`${BTN_BASE} rounded-full bg-amber-500 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-600 disabled:opacity-60`}
                   >
                     Kirim Permintaan Revisi
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowNoteForm(null)}
-                    className="rounded-full border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-600"
+                    className={`${BTN_BASE} rounded-full border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-600`}
                   >
                     Batal
                   </button>
@@ -305,7 +309,7 @@ export default function SubmissionCard({
                 <select
                   value={selectedExecutorId}
                   onChange={(e) => setSelectedExecutorId(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-uninus"
+                  className={`w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-uninus ${FOCUS_RING}`}
                 >
                   <option value="">-- Pilih pelaksana --</option>
                   {pelaksana.map((p) => (
@@ -324,14 +328,14 @@ export default function SubmissionCard({
                         note: note || undefined,
                       })
                     }
-                    className="rounded-full bg-uninus px-4 py-2 text-xs font-semibold text-white hover:bg-uninus-dark disabled:opacity-60"
+                    className={`${BTN_BASE} rounded-full bg-uninus px-4 py-2 text-xs font-semibold text-white hover:bg-uninus-dark disabled:opacity-60`}
                   >
                     Setujui & Tugaskan
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowNoteForm(null)}
-                    className="rounded-full border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-600"
+                    className={`${BTN_BASE} rounded-full border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-600`}
                   >
                     Batal
                   </button>
@@ -347,7 +351,7 @@ export default function SubmissionCard({
               type="button"
               disabled={busy}
               onClick={() => act(`/admin/submissions/${s.id}/submit-to-perpusnas`)}
-              className="rounded-full bg-uninus px-4 py-2 text-sm font-semibold text-white hover:bg-uninus-dark disabled:opacity-60"
+              className={`${BTN_BASE} rounded-full bg-uninus px-4 py-2 text-sm font-semibold text-white hover:bg-uninus-dark disabled:opacity-60`}
             >
               Usulkan ke Perpusnas
             </button>
@@ -365,7 +369,7 @@ export default function SubmissionCard({
                   type="button"
                   disabled={busy}
                   onClick={() => act(`/admin/submissions/${s.id}/perpusnas-waiting`, { note })}
-                  className="rounded-full bg-uninus px-4 py-2 text-xs font-semibold text-white hover:bg-uninus-dark disabled:opacity-60"
+                  className={`${BTN_BASE} rounded-full bg-uninus px-4 py-2 text-xs font-semibold text-white hover:bg-uninus-dark disabled:opacity-60`}
                 >
                   Tandai Menunggu Hasil
                 </button>
@@ -413,12 +417,12 @@ export default function SubmissionCard({
                 accept="application/pdf"
                 required
                 onChange={(e) => setResultFile(e.target.files?.[0] ?? null)}
-                className="block w-full flex-1 text-xs text-gray-600 file:mr-3 file:rounded-full file:border-0 file:bg-uninus-soft file:px-4 file:py-2 file:text-xs file:font-semibold file:text-uninus"
+                className={`block w-full flex-1 text-xs text-gray-600 file:mr-3 file:rounded-full file:border-0 file:bg-uninus-soft file:px-4 file:py-2 file:text-xs file:font-semibold file:text-uninus ${FOCUS_RING}`}
               />
               <button
                 type="submit"
                 disabled={busy}
-                className="rounded-full bg-uninus px-4 py-2 text-xs font-semibold text-white hover:bg-uninus-dark disabled:opacity-60"
+                className={`${BTN_BASE} rounded-full bg-uninus px-4 py-2 text-xs font-semibold text-white hover:bg-uninus-dark disabled:opacity-60`}
               >
                 {busy ? "Mengunggah..." : "Unggah & Kirim ke User"}
               </button>
@@ -439,7 +443,7 @@ export default function SubmissionCard({
               type="button"
               disabled={busy}
               onClick={() => act(`/executor/submissions/${s.id}/start-review`)}
-              className="rounded-full bg-uninus px-4 py-2 text-sm font-semibold text-white hover:bg-uninus-dark disabled:opacity-60"
+              className={`${BTN_BASE} rounded-full bg-uninus px-4 py-2 text-sm font-semibold text-white hover:bg-uninus-dark disabled:opacity-60`}
             >
               Mulai Review
             </button>
@@ -453,7 +457,7 @@ export default function SubmissionCard({
                 <button
                   type="button"
                   onClick={() => setShowNoteForm("executor")}
-                  className="rounded-full border border-amber-500 px-4 py-2 text-sm font-semibold text-amber-600 hover:bg-amber-50"
+                  className={`${BTN_BASE} rounded-full border border-amber-500 px-4 py-2 text-sm font-semibold text-amber-600 hover:bg-amber-50`}
                 >
                   Minta Revisi
                 </button>
@@ -461,7 +465,7 @@ export default function SubmissionCard({
                   type="button"
                   disabled={busy}
                   onClick={() => act(`/executor/submissions/${s.id}/approve`, { note })}
-                  className="rounded-full bg-uninus px-4 py-2 text-sm font-semibold text-white hover:bg-uninus-dark disabled:opacity-60"
+                  className={`${BTN_BASE} rounded-full bg-uninus px-4 py-2 text-sm font-semibold text-white hover:bg-uninus-dark disabled:opacity-60`}
                 >
                   Setujui & Masuk Layouting
                 </button>
@@ -474,21 +478,21 @@ export default function SubmissionCard({
                   onChange={(e) => setNote(e.target.value)}
                   rows={3}
                   placeholder="Catatan perbaikan untuk user..."
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-uninus"
+                  className={`w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-uninus ${FOCUS_RING}`}
                 />
                 <div className="mt-2 flex gap-2">
                   <button
                     type="button"
                     disabled={busy}
                     onClick={() => handleRequestRevision("executor")}
-                    className="rounded-full bg-amber-500 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-600 disabled:opacity-60"
+                    className={`${BTN_BASE} rounded-full bg-amber-500 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-600 disabled:opacity-60`}
                   >
                     Kirim Permintaan Revisi
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowNoteForm(null)}
-                    className="rounded-full border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-600"
+                    className={`${BTN_BASE} rounded-full border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-600`}
                   >
                     Batal
                   </button>
@@ -536,7 +540,7 @@ export default function SubmissionCard({
                 </label>
                 <select
                   name="collection"
-                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-uninus"
+                  className={`rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-uninus ${FOCUS_RING}`}
                   defaultValue="layout_pdf"
                 >
                   <option value="layout_pdf">PDF Layout</option>
@@ -551,13 +555,13 @@ export default function SubmissionCard({
                   type="file"
                   name="file"
                   required
-                  className="block w-full text-xs text-gray-600 file:mr-3 file:rounded-full file:border-0 file:bg-uninus-soft file:px-4 file:py-2 file:text-xs file:font-semibold file:text-uninus"
+                  className={`block w-full text-xs text-gray-600 file:mr-3 file:rounded-full file:border-0 file:bg-uninus-soft file:px-4 file:py-2 file:text-xs file:font-semibold file:text-uninus ${FOCUS_RING}`}
                 />
               </div>
               <button
                 type="submit"
                 disabled={busy}
-                className="rounded-full bg-uninus px-4 py-2 text-xs font-semibold text-white hover:bg-uninus-dark disabled:opacity-60"
+                className={`${BTN_BASE} rounded-full bg-uninus px-4 py-2 text-xs font-semibold text-white hover:bg-uninus-dark disabled:opacity-60`}
               >
                 Unggah File Hasil
               </button>
@@ -608,7 +612,7 @@ export default function SubmissionCard({
                 </label>
                 <select
                   name="collection"
-                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-uninus"
+                  className={`rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-uninus ${FOCUS_RING}`}
                   defaultValue="layout_pdf"
                 >
                   <option value="layout_pdf">PDF Layout</option>
@@ -623,13 +627,13 @@ export default function SubmissionCard({
                   type="file"
                   name="file"
                   required
-                  className="block w-full text-xs text-gray-600 file:mr-3 file:rounded-full file:border-0 file:bg-uninus-soft file:px-4 file:py-2 file:text-xs file:font-semibold file:text-uninus"
+                  className={`block w-full text-xs text-gray-600 file:mr-3 file:rounded-full file:border-0 file:bg-uninus-soft file:px-4 file:py-2 file:text-xs file:font-semibold file:text-uninus ${FOCUS_RING}`}
                 />
               </div>
               <button
                 type="submit"
                 disabled={busy}
-                className="rounded-full bg-uninus px-4 py-2 text-xs font-semibold text-white hover:bg-uninus-dark disabled:opacity-60"
+                className={`${BTN_BASE} rounded-full bg-uninus px-4 py-2 text-xs font-semibold text-white hover:bg-uninus-dark disabled:opacity-60`}
               >
                 Unggah File Hasil
               </button>
@@ -638,7 +642,7 @@ export default function SubmissionCard({
               type="button"
               disabled={busy}
               onClick={() => act(`/executor/submissions/${s.id}/complete-layout`, { note })}
-              className="rounded-full bg-green-700 px-4 py-2 text-sm font-semibold text-white hover:bg-green-800 disabled:opacity-60"
+              className={`${BTN_BASE} rounded-full bg-green-700 px-4 py-2 text-sm font-semibold text-white hover:bg-green-800 disabled:opacity-60`}
             >
               Selesaikan Layouting (Kirim ke Admin)
             </button>
@@ -669,7 +673,7 @@ export default function SubmissionCard({
               type="button"
               disabled={busy}
               onClick={handlePrintReceipt}
-              className="inline-flex items-center gap-1.5 rounded-full border border-uninus px-3 py-1.5 text-xs font-semibold text-uninus transition-colors hover:bg-uninus hover:text-white disabled:opacity-60"
+              className={`${BTN_BASE} gap-1.5 rounded-full border border-uninus px-3 py-1.5 text-xs font-semibold text-uninus transition-colors hover:bg-uninus hover:text-white disabled:opacity-60`}
               title="Buka & cetak bukti pengajuan"
             >
               <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -685,7 +689,10 @@ export default function SubmissionCard({
       </div>
 
       {error && (
-        <div className="mt-3 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+        <div
+          role="alert"
+          className="mt-3 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"
+        >
           <svg
             className="h-5 w-5 flex-shrink-0"
             fill="none"
@@ -699,7 +706,10 @@ export default function SubmissionCard({
         </div>
       )}
       {success && (
-        <div className="mt-3 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-800">
+        <div
+          role="alert"
+          className="mt-3 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-800"
+        >
           <svg
             className="h-5 w-5 flex-shrink-0"
             fill="none"
@@ -721,7 +731,8 @@ export default function SubmissionCard({
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="mt-4 text-xs font-semibold text-uninus hover:underline"
+          aria-expanded={expanded}
+          className={`mt-4 inline-flex min-h-[44px] items-center text-xs font-semibold text-uninus hover:underline ${FOCUS_RING}`}
         >
           {expanded ? "Sembunyikan detail" : "Lihat detail"}
         </button>
@@ -763,7 +774,7 @@ export default function SubmissionCard({
                             setError("Tidak dapat mengunduh dokumen."),
                           )
                         }
-                        className="text-uninus hover:underline"
+                        className={`inline-flex min-h-[44px] items-center px-2 text-uninus hover:underline ${FOCUS_RING}`}
                       >
                         Unduh
                       </button>

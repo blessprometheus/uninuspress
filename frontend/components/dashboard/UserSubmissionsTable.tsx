@@ -307,12 +307,12 @@ export default function UserSubmissionsTable({
                         </div>
                       )}
                       {errorId === s.id && (
-                        <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                        <div role="alert" className="mb-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
                           {errorMsg ?? "Terjadi kesalahan. Periksa kembali file dan koneksi Anda."}
                         </div>
                       )}
                       {successId === s.id && successMsg && (
-                        <div className="mb-3 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-800">
+                        <div role="alert" className="mb-3 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-800">
                           <svg
                             className="h-5 w-5 flex-shrink-0"
                             fill="none"

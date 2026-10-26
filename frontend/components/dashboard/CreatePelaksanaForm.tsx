@@ -9,6 +9,11 @@ interface CreatePelaksanaFormProps {
   onDone: () => void;
 }
 
+const FOCUS_RING =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-uninus focus-visible:ring-offset-2";
+const INPUT_CLS = `w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-uninus ${FOCUS_RING}`;
+const BTN_CLS = `inline-flex min-h-[44px] items-center justify-center ${FOCUS_RING}`;
+
 export default function CreatePelaksanaForm({
   token,
   onDone,
@@ -55,14 +60,14 @@ export default function CreatePelaksanaForm({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="mt-3 rounded-full bg-uninus px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-uninus-dark"
+          className={`${BTN_CLS} mt-3 rounded-full bg-uninus px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-uninus-dark`}
         >
           + Tambah Pelaksana
         </button>
       ) : (
         <>
           {error && (
-            <div className="mt-3 rounded-lg bg-red-50 px-4 py-2.5 text-sm font-medium text-red-700">
+            <div role="alert" className="mt-3 rounded-lg bg-red-50 px-4 py-2.5 text-sm font-medium text-red-700">
               {error}
             </div>
           )}
@@ -76,7 +81,7 @@ export default function CreatePelaksanaForm({
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-uninus"
+                className={INPUT_CLS}
                 placeholder="Nama pelaksana"
               />
             </div>
@@ -89,7 +94,7 @@ export default function CreatePelaksanaForm({
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-uninus"
+                className={INPUT_CLS}
                 placeholder="email@uninus.ac.id"
               />
             </div>
@@ -101,7 +106,7 @@ export default function CreatePelaksanaForm({
                 type="text"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-uninus"
+                className={INPUT_CLS}
                 placeholder="0812xxxxxxxx"
               />
             </div>
@@ -115,7 +120,7 @@ export default function CreatePelaksanaForm({
                 minLength={8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-uninus"
+                className={INPUT_CLS}
                 placeholder="Min. 8 karakter"
               />
             </div>
@@ -123,14 +128,14 @@ export default function CreatePelaksanaForm({
               <button
                 type="submit"
                 disabled={busy}
-                className="rounded-full bg-uninus px-4 py-2 text-xs font-semibold text-white hover:bg-uninus-dark disabled:opacity-60"
+                className={`${BTN_CLS} rounded-full bg-uninus px-4 py-2 text-xs font-semibold text-white hover:bg-uninus-dark disabled:opacity-60`}
               >
                 {busy ? "Menyimpan..." : "Simpan"}
               </button>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-full border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-600"
+                className={`${BTN_CLS} rounded-full border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-600`}
               >
                 Batal
               </button>

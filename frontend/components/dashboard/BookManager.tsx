@@ -26,9 +26,11 @@ function formatPrice(value: number | null | undefined): string {
   }).format(value);
 }
 
-const INPUT_CLS =
-  "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-uninus";
+const FOCUS_RING =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-uninus focus-visible:ring-offset-2";
+const INPUT_CLS = `w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-uninus ${FOCUS_RING}`;
 const LABEL_CLS = "mb-1 block text-[11px] font-semibold text-gray-600";
+const BTN_CLS = `inline-flex min-h-[44px] items-center justify-center ${FOCUS_RING}`;
 
 function AddBookForm({
   token,
@@ -99,7 +101,7 @@ function AddBookForm({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="rounded-full bg-uninus px-5 py-2.5 text-sm font-semibold text-white hover:bg-uninus-dark"
+        className={`${BTN_CLS} rounded-full bg-uninus px-5 py-2.5 text-sm font-semibold text-white hover:bg-uninus-dark`}
       >
         + Tambah Buku Baru
       </button>
@@ -117,14 +119,14 @@ function AddBookForm({
             reset();
             setError(null);
           }}
-          className="text-xs font-semibold text-gray-500 hover:text-gray-700"
+          className={`${BTN_CLS} px-2 text-xs font-semibold text-gray-500 hover:text-gray-700`}
         >
           Batal
         </button>
       </div>
 
       {error && (
-        <p className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-700">{error}</p>
+        <p role="alert" className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-700">{error}</p>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-3">
@@ -179,13 +181,13 @@ function AddBookForm({
             type="file"
             accept="image/*"
             onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)}
-            className="block w-full text-xs text-gray-600 file:mr-3 file:rounded-full file:border-0 file:bg-white file:px-4 file:py-2 file:text-xs file:font-semibold file:text-uninus"
+            className={`block w-full text-xs text-gray-600 file:mr-3 file:rounded-full file:border-0 file:bg-white file:px-4 file:py-2 file:text-xs file:font-semibold file:text-uninus ${FOCUS_RING}`}
           />
         </div>
         <button
           type="submit"
           disabled={busy}
-          className="rounded-full bg-uninus px-5 py-2.5 text-sm font-semibold text-white hover:bg-uninus-dark disabled:opacity-60"
+          className={`${BTN_CLS} rounded-full bg-uninus px-5 py-2.5 text-sm font-semibold text-white hover:bg-uninus-dark disabled:opacity-60`}
         >
           {busy ? "Menyimpan..." : "Simpan Buku"}
         </button>
@@ -329,17 +331,17 @@ function BookRow({
           type="button"
           disabled={busy}
           onClick={handleDelete}
-          className="shrink-0 rounded-full border border-red-300 px-4 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-60"
+          className={`${BTN_CLS} shrink-0 rounded-full border border-red-300 px-4 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-60`}
         >
           Hapus
         </button>
       </div>
 
       {error && (
-        <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-700">{error}</p>
+        <p role="alert" className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-700">{error}</p>
       )}
       {success && (
-        <p className="mt-3 rounded-lg bg-green-50 px-3 py-2 text-xs font-medium text-green-700">{success}</p>
+        <p role="alert" className="mt-3 rounded-lg bg-green-50 px-3 py-2 text-xs font-medium text-green-700">{success}</p>
       )}
 
       <form onSubmit={saveDetails} className="mt-3 space-y-2">
@@ -392,7 +394,7 @@ function BookRow({
         <button
           type="submit"
           disabled={busy}
-          className="rounded-full bg-uninus px-4 py-2 text-xs font-semibold text-white hover:bg-uninus-dark disabled:opacity-60"
+          className={`${BTN_CLS} rounded-full bg-uninus px-4 py-2 text-xs font-semibold text-white hover:bg-uninus-dark disabled:opacity-60`}
         >
           Simpan Perubahan
         </button>
@@ -403,12 +405,12 @@ function BookRow({
           type="file"
           accept="image/*"
           onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)}
-          className="block flex-1 text-xs text-gray-600 file:mr-3 file:rounded-full file:border-0 file:bg-uninus-soft file:px-4 file:py-2 file:text-xs file:font-semibold file:text-uninus"
+          className={`block flex-1 text-xs text-gray-600 file:mr-3 file:rounded-full file:border-0 file:bg-uninus-soft file:px-4 file:py-2 file:text-xs file:font-semibold file:text-uninus ${FOCUS_RING}`}
         />
         <button
           type="submit"
           disabled={busy || !coverFile}
-          className="rounded-full border border-uninus px-4 py-2 text-xs font-semibold text-uninus hover:bg-uninus hover:text-white disabled:opacity-60"
+          className={`${BTN_CLS} rounded-full border border-uninus px-4 py-2 text-xs font-semibold text-uninus hover:bg-uninus hover:text-white disabled:opacity-60`}
         >
           Ganti Cover
         </button>
@@ -461,7 +463,11 @@ export default function BookManager({ token }: BookManagerProps) {
     return <p className="text-sm text-gray-500">Memuat daftar buku...</p>;
   }
   if (error) {
-    return <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>;
+    return (
+      <p role="alert" className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+        {error}
+      </p>
+    );
   }
 
   return (
