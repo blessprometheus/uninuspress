@@ -262,7 +262,7 @@ function BookRow({
       onUpdated(res.book);
       setSuccess("Cover buku diperbarui.");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Gagal mengunggah cover.");
+      setError(err instanceof ApiError ? firstError(err.errors, err.message) : "Gagal mengunggah cover.");
     } finally {
       setBusy(false);
     }

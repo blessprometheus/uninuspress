@@ -22,6 +22,8 @@ RUN apk add --no-cache \
         exif \
         opcache
 
+COPY docker/php/uploads.ini "$PHP_INI_DIR/conf.d/zz-uploads.ini"
+
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 COPY composer.json composer.lock ./
