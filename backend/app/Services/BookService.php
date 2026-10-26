@@ -49,6 +49,40 @@ class BookService
         return $book;
     }
 
+    /**
+     * Admin menambahkan buku secara manual (tidak terkait submission),
+     * mis. terbitan lama yang belum pernah masuk alur pengajuan sistem ini.
+     */
+    public function createManual(array $data, ?UploadedFile $cover = null): Book
+    {
+        $book = Book::create([
+            'submission_id' => null,
+            'slug' => $this->uniqueSlug($data['title']),
+            'title' => $data['title'],
+            'author' => $data['author'],
+            'synopsis' => $data['synopsis'] ?? null,
+            'category' => $data['category'] ?? null,
+            'isbn' => $data['isbn'] ?? null,
+            'price' => $data['price'] ?? null,
+            'year' => $data['year'] ?? (string) now()->year,
+            'is_published' => true,
+            'published_at' => now(),
+        ]);
+
+        if ($cover) {
+            $this->updateCover($book, $cover);
+        }
+
+        return $book;
+    }
+
+    /** Admin menghapus buku (termasuk cover-nya) dari Toko Buku. */
+    public function delete(Book $book): void
+    {
+        $book->clearMediaCollection(Book::COLLECTION_COVER);
+        $book->delete();
+    }
+
     /** Admin mengganti cover (dipakai untuk memasang cover ber-ISBN). */
     public function updateCover(Book $book, UploadedFile $file): Media
     {

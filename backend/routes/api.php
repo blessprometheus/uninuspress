@@ -55,8 +55,10 @@ Route::middleware(['auth:sanctum', 'role:ADMIN'])->prefix('admin')->group(functi
     Route::patch('pelaksana/{user}/toggle-active', [AdminUserController::class, 'toggleActivePelaksana']);
 
     Route::get('books', [AdminBookController::class, 'index']);
+    Route::post('books', [AdminBookController::class, 'store']);
     Route::patch('books/{book}', [AdminBookController::class, 'update']);
     Route::post('books/{book}/cover', [AdminBookController::class, 'uploadCover']);
+    Route::delete('books/{book}', [AdminBookController::class, 'destroy']);
 });
 
 // Akses PELAKSANA (hanya pengajuan yang ditugaskan)

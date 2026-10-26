@@ -27,6 +27,33 @@ class AdminBookController extends Controller
     }
 
     /**
+     * POST /api/admin/books
+     * Tambah buku baru secara manual (tidak terkait submission).
+     * Body multipart: title, author (wajib), synopsis, category, isbn,
+     * price, year (opsional), cover (gambar, opsional).
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'author' => ['required', 'string', 'max:255'],
+            'synopsis' => ['nullable', 'string'],
+            'category' => ['nullable', 'string', 'max:100'],
+            'isbn' => ['nullable', 'string', 'max:50'],
+            'price' => ['nullable', 'integer', 'min:0'],
+            'year' => ['nullable', 'string', 'max:9'],
+            'cover' => ['nullable', 'image', 'max:5120'],
+        ]);
+
+        $book = $this->service->createManual($data, $request->file('cover'));
+
+        return response()->json([
+            'message' => 'Buku baru berhasil ditambahkan.',
+            'book' => (new BookResource($book))->resolve(),
+        ], 201);
+    }
+
+    /**
      * PATCH /api/admin/books/{book}
      * Body: title, author, synopsis, category, isbn, price, year, is_published (semua opsional).
      */
@@ -68,6 +95,18 @@ class AdminBookController extends Controller
         return response()->json([
             'message' => 'Cover buku berhasil diperbarui.',
             'book' => (new BookResource($book))->resolve(),
+        ]);
+    }
+
+    /**
+     * DELETE /api/admin/books/{book}
+     */
+    public function destroy(Book $book): JsonResponse
+    {
+        $this->service->delete($book);
+
+        return response()->json([
+            'message' => 'Buku berhasil dihapus.',
         ]);
     }
 }
